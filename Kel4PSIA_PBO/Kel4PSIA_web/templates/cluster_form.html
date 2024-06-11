@@ -1,0 +1,64 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}
+  Cluster | Form
+{% endblock %}
+
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row">
+    <div class="col">
+      <h1>Cluster</h1>
+      <form action="{% url 'clusteradd' %}" method="post" class="border border-dark" id="salesForm">
+        {%csrf_token%}
+        <table class="table" style="border: none;">
+          <tr>
+            <td>
+              <button type="submit" class="btn btn-secondary">Save</button>
+              <a href="{% url 'cluster' %}" class="btn btn-danger">Discard</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Name</label>
+                <input type="text" class="form-control" name="cluster_name">
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Project</label>
+                <select class="form-control" id="project" name="cluster_project">
+                  {% for proj in Project %}
+                    <option value="{{ proj.id }}" data-type="{{ proj.project_type }}" data-location="{{ proj.project_location }}">{{ proj.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Type</label>
+                <input type="text" class="form-control" name="cluster_type">
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Location</label>
+                <input type="text" class="form-control" name="cluster_location">
+              </div>
+            </td>
+          </tr>
+        </table>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

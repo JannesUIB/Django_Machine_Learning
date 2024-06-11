@@ -1,0 +1,86 @@
+{% extends "master.html" %}
+{% load static %}
+{% block extracss %}
+  <link href="{% static '/css/sales_index.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}
+  Cluster | Index
+{% endblock %}
+
+
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">Users</h5>
+    <a href="{% url 'clusterform' %}" class="btn btn-primary">Add Cluster</a>
+  </div>
+</div>
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th scope="col">Cluster</th>
+      <th scope="col">Project</th>
+      <th scope="col">Type</th>
+      <th scope="col">Location</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in data %}
+    <tr>
+      <td>{{ item.name }}</td>
+      <td>{{ item.project.name }}</td>
+      <td>{{ item.cluster_type }}</td>
+      <td>{{ item.cluster_location }}</td>
+      <td>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-{{ item.id }}">Edit</button>
+        <div class="modal fade bd-example-modal-lg" id="modal-{{ item.id }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel-{{ item.id }}" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit</h5>
+              </div>
+              <div class="modal-body">
+                <form action="{% url 'clusteredit' item.id %}" method="post">
+                  {%csrf_token%}
+                  <div class="form-group">
+                    <label for="reserver-name" class="col-form-label">Name:</label>
+                    <input type="text" class="form-control" id="reserver-name" name="cluster_name" value="{{ item.name }}" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="project" class="col-form-label">Project:</label>
+                    <select class="form-control" id="project" name="cluster_project">
+                      {% for proj in Project %}
+                        {% if proj.id == item.project.id %}
+                        <option value="{{ proj.id }}" data-type="{{ proj.project_type }}" data-location="{{ proj.project_location }}" selected>{{ proj.name }}</option>
+                        {% else %}
+                        <option value="{{ proj.id }}" data-type="{{ proj.project_type }}" data-location="{{ proj.project_location }}">{{ proj.name }}</option>
+                        {% endif %}
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="reserver-name" class="col-form-label">Type:</label>
+                    <input type="text" class="form-control" id="reserver-name" name="cluster_type" value="{{ item.cluster_type }}" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="reserver-name" class="col-form-label">Location:</label>
+                    <input type="text" class="form-control" id="reserver-name" name="cluster_location" value="{{ item.cluster_location }}" required>
+                  </div>
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Edit Cluster</button>
+                    <button type="submit" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <a href="{% url 'clusterdelete' item.id %}" class="btn btn-danger">Delete User</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

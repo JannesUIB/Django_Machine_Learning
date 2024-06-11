@@ -1,0 +1,86 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}
+  Contacts | Form
+{% endblock %}
+
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row">
+    <div class="col">
+      <h1>Contacts</h1>
+      <form action="{% url 'contactsadd' %}" method="post" class="border border-dark" id="salesForm">
+        {%csrf_token%}
+        <table class="table table-borderless" style="border: none;">
+          <tr>
+            <td>
+              <button type="submit" class="btn btn-secondary">Save</button>
+              <a href="{% url 'contacts' %}" class="btn btn-danger">Discard</button>
+            </td>
+          </tr>
+          <tr>
+            <h1>
+            <td colspan="2">
+                <input type="text" class="form-control" placeholder="Contact Name" name="contact_name" style="border-top:0px;border-left: 0px;border-right: 0px;">
+            </td>
+            </h1>
+          </tr>
+          <tr>
+            <td>
+                <table class="table table-borderless">
+                  <tr>
+                    <td><label>Pendapatan Per Bulan</label></td>
+                    <td><input type="number" class="form-control" name="contact_main_income"></td>
+                  </tr>
+                  <tr>
+                    <td><label>Pendapatan Lain-Lain</label></td>
+                    <td><input type="number" class="form-control" name="contact_other_income"></td>
+                  </tr>
+                  <tr>
+                    <td><label>Status Pernikahan</label></td>
+                    <td>
+                      <select class="form-control" id="exampleFormControlSelect1" name="contact_status_pernikahan">
+                        <option value="sm">Sudah Menikah</option>
+                        <option value="bm">Belum Menikah</option>
+                        <option value="cn">Cerai Nikah</option>
+                        <option value="cm">Cerai Mati</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><label>Jumlah Anak</label></td>
+                    <td><input type="number" class="form-control" name="contact_kids"></td>
+                  </tr>
+                </table>
+            </td>
+            <td>
+              <table class="table table-borderless">
+                <tr>
+                  <td><label>Phone</label></td>
+                  <td><input type="text" class="form-control" name="contact_phone"></td>
+                </tr>
+                <tr>
+                  <td><label>Email</label></td>
+                  <td><input type="email" class="form-control" name="contact_email"></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <h1>Houses</h1>
+              <table class="table table-bordered border-black">
+                <tr>
+                  <th>Projects</th>               
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

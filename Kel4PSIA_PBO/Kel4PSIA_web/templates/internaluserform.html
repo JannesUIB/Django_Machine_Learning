@@ -1,0 +1,52 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}
+  Internal User | Form
+{% endblock %}
+
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row">
+    <div class="col">
+      <h1>Users</h1>
+      <form action="{% url 'internaluseradd' %}" method="post" class="border border-dark" id="salesForm">
+        {%csrf_token%}
+        <table class="table" style="border: none;">
+          <tr>
+            <td>
+              <button type="submit" class="btn btn-secondary">Save</button>
+              <a href="{% url 'internaluser' %}" class="btn btn-danger">Discard</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Name</label>
+                <input type="text" class="form-control" name="user_name">
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="text" class="form-control" name="user_email">
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Password</label>
+                <input type="password" class="form-control" name="user_password">
+              </div>
+            </td>
+          </tr>
+        </table>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

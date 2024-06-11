@@ -1,0 +1,218 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}
+  Prediction | Form
+{% endblock %}
+
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row">
+    <div class="col">
+      <h1>Prediction</h1>
+      <form action="{% url 'predict' %}" method="post" class="border border-dark" id="salesForm">
+        {%csrf_token%}
+        <table class="table" style="border: none;">
+          <tr>
+            <td>
+              <button type="submit" class="btn btn-secondary">Save</button>
+              <a href="{% url 'index' %}" class="btn btn-danger">Discard</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Project</label>
+                <select class="form-control" id="project" name="project">
+                  {% for project in projects %}
+                    <option value="{{ project.name }}" data-id="{{ project.id }}">{{ project.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Cluster</label>
+                <select class="form-control" id="cluster" name="cluster">
+                </select>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Location</label>
+                <input type="text" class="form-control" name="location"> 
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Type</label>
+                <input type="text" class="form-control" name="type"> 
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Price</label>
+                <input type="number" class="form-control" name="price"> 
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Rate</label>
+                <input type="number" class="form-control" name="rate"> 
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Term Month</label>
+                <input type="number" class="form-control" name="term_month"> 
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Price after rate</label>
+                <input type="number" class="form-control" name="price_after_rate"> 
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Credit</label>
+                <input type="number" class="form-control" name="credit"> 
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Total Income</label>
+                <input type="number" class="form-control" name="total_income"> 
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>BI Status</label>
+                <select class="form-control" id="exampleFormControlSelect1" name="bi_status">
+                  <option value="1">KOL 1</option>
+                  <option value="2">KOL 2</option>
+                  <option value="3">KOL 3</option>
+                  <option value="4">KOL 4</option>
+                  <option value="5">KOL 5</option>
+                </select>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Marital Status</label>
+                <select class="form-control" id="exampleFormControlSelect1" name="marital_status">
+                  <option value="1">Menikah</option>
+                  <option value="2">Belum Menikah</option>
+                  <option value="3">Cerai Mati</option>
+                </select>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Childrens</label>
+                <input type="number" class="form-control" name="childrens"> 
+              </div>
+            </td>
+          </tr>
+        </table>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var projectSelect = document.getElementById('project');
+    var clusterSelect = document.getElementById('cluster');
+    var priceInput = document.querySelector('input[name="price"]');
+    var rateInput = document.querySelector('input[name="rate"]');
+    var termMonthInput = document.querySelector('input[name="term_month"]');
+    var priceAfterRateInput = document.querySelector('input[name="price_after_rate"]');
+
+    // Function to update other input types based on selected option
+    function updateInputType(projectId) {
+      var selectedOption = clusterSelect.querySelector('option[data-id="' + projectId + '"]');
+      if (selectedOption) {
+        var clusterType = selectedOption.dataset.clusterType;
+        var clusterLocation = selectedOption.dataset.clusterLocation;
+        document.getElementById('project_type').value = clusterType;
+        document.getElementById('project_location').value = clusterLocation;
+      }
+    }
+
+    // Function to fetch clusters for the selected project
+    function fetchClusters(projectId) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', "{% url 'get_clusters' %}?project_id=" + projectId, true);
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var data = JSON.parse(xhr.responseText);
+          clusterSelect.innerHTML = ''; // Clear existing options
+          data.clusters.forEach(function(cluster) {
+            var option = document.createElement('option');
+            option.value = cluster.id;
+            option.textContent = cluster.name;
+            option.dataset.clusterType = cluster.cluster_type;
+            option.dataset.clusterLocation = cluster.cluster_location;
+            option.dataset.projectId = cluster.project_id; // Add project ID to option
+            clusterSelect.appendChild(option);
+          });
+
+          // Update other input types based on the selected option
+          updateInputType(projectId);
+        } else {
+          console.error('Request failed. Status:', xhr.status);
+        }
+      };
+      xhr.onerror = function() {
+        console.error('Request failed');
+      };
+      xhr.send();
+    }
+
+    // Event listener for project selection change
+    projectSelect.addEventListener('change', function() {
+      var projectId = this.options[this.selectedIndex].dataset.id;
+      fetchClusters(projectId);
+    });
+
+    // Trigger updateInputType function when the page loads
+    fetchClusters(projectSelect.options[projectSelect.selectedIndex].dataset.id);
+
+    // Event listener for price, rate, and term_month change
+    [priceInput, rateInput, termMonthInput].forEach(function(input) {
+      input.addEventListener('change', function() {
+        var price = parseFloat(priceInput.value);
+        var rate = parseFloat(rateInput.value);
+        var termMonth = parseFloat(termMonthInput.value);
+        var priceAfterRate = price + ((price * rate / 100) * (termMonth / 12));
+        priceAfterRateInput.value = priceAfterRate.toFixed(2); // Round to 2 decimal places
+      });
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,293 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}
+  Sales | Details
+{% endblock %}
+
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row">
+    <div class="col">
+      <h1>Sales Order</h1>
+      <div class="border border-dark" id="salesForm">
+        {%csrf_token%}
+        <table class="table" style="border: none;">
+          <tr>
+            <td>
+              <a href="{% url 'salesedit' sale_data.id %}" class="btn btn-secondary">Edit</button>
+              <a href="{% url 'salesdelete' sale_data.id %}" class="btn btn-danger">Delete</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <input type="hidden" name="saleLines" id="saleLines">
+                <input type="text" class="form-control" name="nama_sale" placeholder="Name" value="{{ sale_data.name }}" readonly>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Customer</label>
+                <select class="form-control" id="customer" name="sales_contacts" disabled>
+                  {% for contact in contacts %}
+                    {% if sale_data.contacts.id == contact.id %}
+                    <option value="{{ contact.id }}" selected>{{ contact.name }}</option>
+                    {% else %}
+                    <option value="{{ contact.id }}">{{ contact.name }}</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Project</label>
+                <select class="form-control" id="project" name="sales_projects" disabled>
+                  {% for project in projects %}
+                    {% if sale_data.projects.id == project.id %}
+                    <option value="{{ project.id }}" selected data-type="{{ project.project_type }}" data-location="{{ project.project_location }}">{{ project.name }}</option>
+                    {% else %}
+                    <option value="{{ project.id }}" data-type="{{ project.project_type }}" data-location="{{ project.project_location }}">{{ project.name }}</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Cluster</label>
+                <select class="form-control" id="project" name="sales_projects" disabled>
+                  {% for cluster in clusters %}
+                    {% if sale_data.cluster.id == cluster.id %}
+                    <option value="{{ cluster.id }}" selected data-type="{{ cluster.cluster_type }}" data-location="{{ cluster.cluster_location }}">{{ cluster.name }}</option>
+                    {% else %}
+                    <option value="{{ cluster.id }}" data-type="{{ cluster.cluster_type }}" data-location="{{ cluster.cluster_location }}">{{ cluster.name }}</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Lama Cicil (Dalam Bulan)</label>
+                <input type="text" class="form-control" name="sales_lama_cicil" value="{{ sale_data.lama_cicil }}" readonly> 
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Down Payment (%)</label>
+                <input type="text" class="form-control" name="sales_down_payment" value="{{ sale_data.down_payment }}" readonly> 
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <!-- Add buttons to switch between Settings and Description -->
+              <button type="button" id="detailcicilanButton" class="btn btn-secondary">Detail Cicilan</button>
+              <button type="button" id="projectdetailButton" class="btn btn-secondary">Detail Project</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div id="detail_cicilan" >
+                <div class="card">
+                  <div class="card-body">
+                    <table class="table mt-2">
+                      <thead class="thead-dark">
+                        <tr>
+                          <th scope="col">Description</th>
+                          <th scope="col">Jumlah Cicil</th>
+                          <th scope="col">Tahun Cicil</th>
+                          <th scope="col">Bulan Cicil</th>
+                          <th scope="col">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for line in sale_lines %}
+                            <tr>
+                                <td>{{ line.description }}</td>
+                                <td>{{ line.jumlah_cicil }}</td>
+                                <td>{{ line.tahun_cicil }}</td>
+                                <td>{{ line.bulan_cicil }}</td>
+                                <td>
+                                  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-{{ line.id }}">Edit</button>
+                                  <div class="modal fade bd-example-modal-lg" id="modal-{{ line.id }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel-{{ line.id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h5 class="modal-title" id="exampleModalLabel">Add Sale Line</h5>
+                                        </div>
+                                        <div class="modal-body">
+                                          <form action="{% url 'salelineupdate' line.id%}" method="post">
+                                            {%csrf_token%}
+                                            <div class="form-group">
+                                              <label for="Product">Description</label>
+                                              <input type="text" class="form-control" id="description" name="description" value="{{ line.description }}" required>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="Harga">Jumlah Cicil</label>
+                                              <input type="number" class="form-control" id="jumlah_cicil" name="jumlah_cicil" value="{{ line.jumlah_cicil }}" required>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="Quantity">Tahun Cicil</label>
+                                              <input type="text" class="form-control" id="tahun_cicil" name="tahun_cicil" placeholder="e.g 2024" value="{{ line.tahun_cicil }}" required>
+                                            </div>
+                                            <div class="form-group">
+                                              <label for="Quantity">Bulan Cicil</label>
+                                              <input type="text" class="form-control" id="bulan_cicil" name="bulan_cicil" placeholder="e.g 01,02,03" value="{{ line.bulan_cicil }}" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Save</button>
+                                            </div>
+                                          </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                          
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <a href="{% url 'salelinedelete' line.id %}" class="btn btn-danger">Delete</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    </table>
+                    <!-- <a href="#" class="btn btn-primary">Create Sales</a> -->
+                  </div>
+                </div>
+              </div>
+              <div id="detail_project" style="display: none;">
+                  <table class="table table-borderless">
+                    <tr>
+                      <td>
+                        <div class="form-group">
+                          <label>Project Manager</label>
+                          <select class="form-control" id="project_manager" name="sales_projects_manager" disabled>
+                            {% for users in internal_users%}
+                              {% if sale_data.project_manager.id == users.id %}
+                              <option value="{{ users.id }}" data-email="{{ users.email }}" selected>{{ users.name }}</option>
+                              {% else %}
+                              <option value="{{ users.id }}" data-email="{{ users.email }}">{{ users.name }}</option>
+                              {% endif %}
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="form-group">
+                          <label>Project Manager Email</label>
+                          <input type="text" class="form-control" name="sales_project_manager_email" id="project_manager_email" value="{{ sale_data.project_manager_email }}" readonly> 
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="form-group">
+                          <label>Project's Type</label>
+                          <input type="text" class="form-control" name="sales_project_type" id="project_type" value="{{ sale_data.project_type }}" readonly>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="form-group">
+                          <label>Project's Location</label>
+                          <input type="text" class="form-control" name="sales_project_location" id="project_location" value="{{ sale_data.project_location }}" readonly> 
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  
+  document.getElementById('salesForm').addEventListener('submit', function(event) {
+      var saleLines = [];
+      var rows = document.querySelectorAll('#saleLineTableBody tr');
+      rows.forEach(function(row) {
+          var cells = row.querySelectorAll('td');
+          var saleLine = {
+              description: cells[0].innerText,
+              jumlah_cicil: cells[1].innerText,
+              tahun_cicil: cells[2].innerText,
+              bulan_cicil: cells[3].innerText,
+          };
+          saleLines.push(saleLine);
+      });
+      document.getElementById('saleLines').value = JSON.stringify(saleLines);
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+      const settingsButton = document.getElementById('detailcicilanButton');
+      const descriptionButton = document.getElementById('projectdetailButton');
+      const settingsDiv = document.getElementById('detail_cicilan');
+      const descriptionDiv = document.getElementById('detail_project');
+
+      const projectManager = document.getElementById('project_manager');
+      const projectManagerEmail = document.getElementById('project_manager_email');
+
+      const projectManagerSelect = document.getElementById('project');
+      const projectManagertype = document.getElementById('project_type');
+      const projectManagerlocation = document.getElementById('project_location');
+
+  
+      function toggleActiveButton(activeButton, inactiveButton) {
+          activeButton.classList.remove('btn-secondary');
+          activeButton.classList.add('btn-primary');
+          inactiveButton.classList.remove('btn-primary');
+          inactiveButton.classList.add('btn-secondary');
+      }
+  
+      settingsButton.addEventListener('click', function () {
+          settingsDiv.style.display = 'block';
+          descriptionDiv.style.display = 'none';
+          toggleActiveButton(settingsButton, descriptionButton);
+      });
+  
+      descriptionButton.addEventListener('click', function () {
+          settingsDiv.style.display = 'none';
+          descriptionDiv.style.display = 'block';
+          toggleActiveButton(descriptionButton, settingsButton);
+      });
+      
+      projectManagerSelect.addEventListener('change', function () {
+          const selectedOption = projectManagerSelect.options[projectManagerSelect.selectedIndex];
+          const type = selectedOption.getAttribute('data-type');
+          const Location = selectedOption.getAttribute('data-location');
+          projectManagertype.value = type;
+          projectManagerlocation.value = Location;
+      });
+
+      projectManager.addEventListener('change', function () {
+          const selectedOption = projectManager.options[projectManager.selectedIndex];
+          const email = selectedOption.getAttribute('data-email');
+          projectManagerEmail.value = email;
+      });
+
+      // Trigger the click event on settingsButton to show settingsDiv by default if needed
+      settingsButton.click();
+  });
+  </script>
+{% endblock %}

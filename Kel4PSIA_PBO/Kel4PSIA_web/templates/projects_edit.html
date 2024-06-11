@@ -1,0 +1,114 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}
+  Projects | Edit
+{% endblock %}
+
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row">
+    <div class="col">
+      <h1>Projects</h1>
+      <form action="{% url 'projectsupdate' projects.id %}" method="post" class="border border-dark" id="salesForm">
+        {%csrf_token%}
+        <table class="table table-borderless" style="border: none;">
+          <tr>
+            <td>
+              <button type="submit" class="btn btn-secondary">Update</button>
+              <a href="{% url 'projectsdetails' projects.id %}" class="btn btn-danger">Discard</button>
+            </td>
+          </tr>
+          <tr>
+            <h1>
+            <td colspan="2">
+                <input type="text" class="form-control" placeholder="Project Name" name="project_name" value="{{projects.name}}" style="border-top:0px;border-left: 0px;border-right: 0px;" >
+            </td>
+            </h1>
+          </tr>
+          <tr>
+            <td>
+              <!-- Add buttons to switch between Settings and Description -->
+              <button type="button" id="settingsButton" class="btn btn-secondary">Settings</button>
+              <button type="button" id="descriptionButton" class="btn btn-secondary">Descriptions</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div id="settings">
+                <table class="table table-borderless">
+                  <tr>
+                    <td><label>Project Manager</label></td>
+                    <td>
+                      <select class="form-control" id="exampleFormControlSelect1" name="project_manager" >
+                        {% for user in internal_users %}
+                          {% if user.id == projects.project_manager.id %}
+                            <option value="{{ user.id }}" data-email="{{ user.email }}" selected>{{ user.name }}</option>
+                          {% else %}
+                            <option value="{{ user.id }}" data-email="{{ user.email }}">{{ user.name }}</option>
+                          {% endif %}
+                        {% endfor %}
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><label>Project Manager's Email</label></td>
+                    <td><input type="email" class="form-control" id="project_manager_email" name="project_manager_email" value="{{projects.project_manager_email}}" ></td>
+                  </tr>
+                </table>
+              </div>
+              <div id="description" style="display: none;">
+                <div class="form-group">
+                  <label for="exampleFormControlTextarea1">Description</label>
+                  <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="project_description" >{{projects.project_description}}</textarea>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      const settingsButton = document.getElementById('settingsButton');
+      const descriptionButton = document.getElementById('descriptionButton');
+      const settingsDiv = document.getElementById('settings');
+      const descriptionDiv = document.getElementById('description');
+      const projectManagerSelect = document.getElementById('exampleFormControlSelect1');
+      const projectManagerEmail = document.getElementById('project_manager_email');
+
+  
+      function toggleActiveButton(activeButton, inactiveButton) {
+          activeButton.classList.remove('btn-secondary');
+          activeButton.classList.add('btn-primary');
+          inactiveButton.classList.remove('btn-primary');
+          inactiveButton.classList.add('btn-secondary');
+      }
+  
+      settingsButton.addEventListener('click', function () {
+          settingsDiv.style.display = 'block';
+          descriptionDiv.style.display = 'none';
+          toggleActiveButton(settingsButton, descriptionButton);
+      });
+  
+      descriptionButton.addEventListener('click', function () {
+          settingsDiv.style.display = 'none';
+          descriptionDiv.style.display = 'block';
+          toggleActiveButton(descriptionButton, settingsButton);
+      });
+      
+      projectManagerSelect.addEventListener('change', function () {
+          const selectedOption = projectManagerSelect.options[projectManagerSelect.selectedIndex];
+          const email = selectedOption.getAttribute('data-email');
+          projectManagerEmail.value = email;
+      });
+
+      // Trigger the click event on settingsButton to show settingsDiv by default if needed
+      settingsButton.click();
+  });
+</script>
+{% endblock %}

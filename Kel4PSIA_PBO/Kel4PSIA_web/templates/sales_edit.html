@@ -1,0 +1,366 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}
+  Sales | Edit
+{% endblock %}
+
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row">
+    <div class="col">
+      <h1>Sales Order</h1>
+      <form action="{% url 'salesupdate' sale_data.id%}" method="post" class="border border-dark" id="salesForm">
+        {%csrf_token%}
+        <table class="table" style="border: none;">
+          <tr>
+            <td>
+              <button type="submit" class="btn btn-secondary">Save</button>
+              <a href="{% url 'salesdetail' sale_data.id %}" class="btn btn-danger">Discard</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <input type="hidden" name="saleLines" id="saleLines">
+                <input type="text" class="form-control" name="nama_sale" placeholder="Name" value="{{ sale_data.name }}">
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Customer</label>
+                <select class="form-control" id="customer" name="sales_contacts">
+                  {% for contact in contacts %}
+                    {% if sale_data.contacts.id == contact.id %}
+                    <option value="{{ contact.id }}" selected>{{ contact.name }}</option>
+                    {% else %}
+                    <option value="{{ contact.id }}">{{ contact.name }}</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Project</label>
+                <select class="form-control" id="project" name="sales_projects">
+                  {% for project in projects %}
+                    {% if sale_data.projects.id == project.id %}
+                    <option value="{{ project.id }}" selected data-type="{{ project.project_type }}" data-location="{{ project.project_location }}">{{ project.name }}</option>
+                    {% else %}
+                    <option value="{{ project.id }}" data-type="{{ project.project_type }}" data-location="{{ project.project_location }}">{{ project.name }}</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Cluster</label>
+                <select class="form-control" id="cluster" name="sales_cluster">
+                  {% for cluster in clusters %}
+                    {% if sale_data.cluster.id == cluster.id %}
+                    <option value="{{ cluster.id }}" selected data-type="{{ cluster.cluster_type }}" data-location="{{ cluster.cluster_location }}">{{ cluster.name }}</option>
+                    {% else %}
+                    <option value="{{ cluster.id }}" data-type="{{ cluster.cluster_type }}" data-location="{{ cluster.cluster_location }}">{{ cluster.name }}</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Lama Cicil (Dalam Bulan)</label>
+                <input type="text" class="form-control" name="sales_lama_cicil" value="{{ sale_data.lama_cicil }}"> 
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="form-group">
+                <label>Down Payment (%)</label>
+                <input type="text" class="form-control" name="sales_down_payment" value="{{ sale_data.down_payment }}"> 
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <!-- Add buttons to switch between Settings and Description -->
+              <button type="button" id="detailcicilanButton" class="btn btn-secondary">Detail Cicilan</button>
+              <button type="button" id="projectdetailButton" class="btn btn-secondary">Detail Project</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div id="detail_cicilan" >
+                <div class="card">
+                  <div class="card-body">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg">Add Sale Line</button>
+                    <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Add Sale Line</h5>
+                          </div>
+                          <div class="modal-body">
+                            <form id="saleLineForm">
+                              <div class="form-group">
+                                <label for="Product">Description</label>
+                                <input type="text" class="form-control" id="description">
+                              </div>
+                              <div class="form-group">
+                                <label for="Harga">Jumlah Cicil</label>
+                                <input type="number" class="form-control" id="jumlah_cicil">
+                              </div>
+                              <div class="form-group">
+                                <label for="Quantity">Tahun Cicil</label>
+                                <input type="text" class="form-control" id="tahun_cicil" placeholder="e.g 2024">
+                              </div>
+                              <div class="form-group">
+                                <label for="Quantity">Bulan Cicil</label>
+                                <input type="text" class="form-control" id="bulan_cicil" placeholder="e.g 01,02,03">
+                              </div>
+                              <div class="form-group">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                  <button type="button" class="btn btn-primary" id="addSaleLineBtn">Add Sale Line</button>
+                              </div>
+                            </form>
+                          </div>
+                          <div class="modal-footer">
+                            
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <table class="table mt-2">
+                      <thead class="thead-dark">
+                        <tr>
+                          <th scope="col" style="display: none;">Line ID</th>
+                          <th scope="col">Description</th>
+                          <th scope="col">Jumlah Cicil</th>
+                          <th scope="col">Tahun Cicil</th>
+                          <th scope="col">Bulan Cicil</th>
+                        </tr>
+                      </thead>
+                      <tbody id="saleLineTableBody">
+                        {% for line in sale_lines %}
+                            <tr>
+                                <td style="display: none;">{{ line.id }}</td>
+                                <td>{{ line.description }}</td>
+                                <td>{{ line.jumlah_cicil }}</td>
+                                <td>{{ line.tahun_cicil }}</td>
+                                <td>{{ line.bulan_cicil }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    </table>
+                    <!-- <a href="#" class="btn btn-primary">Create Sales</a> -->
+                  </div>
+                </div>
+              </div>
+              <div id="detail_project" style="display: none;">
+                  <table class="table table-borderless">
+                    <tr>
+                      <td>
+                        <div class="form-group">
+                          <label>Project Manager</label>
+                          <select class="form-control" id="project_manager" name="sales_projects_manager">
+                            {% for users in internal_users%}
+                              {% if sale_data.project_manager.id == users.id %}
+                              <option value="{{ users.id }}" data-email="{{ users.email }}" selected>{{ users.name }}</option>
+                              {% else %}
+                              <option value="{{ users.id }}" data-email="{{ users.email }}">{{ users.name }}</option>
+                              {% endif %}
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="form-group">
+                          <label>Project Manager Email</label>
+                          <input type="text" class="form-control" name="sales_project_manager_email" id="project_manager_email" value="{{ sale_data.project_manager_email }}"> 
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="form-group">
+                          <label>Project's Type</label>
+                          <input type="text" class="form-control" name="sales_project_type" id="project_type" value="{{ sale_data.project_type }}">
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="form-group">
+                          <label>Project's Location</label>
+                          <input type="text" class="form-control" name="sales_project_location" id="project_location" value="{{ sale_data.project_location }}"> 
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    var projectSelect = document.getElementById('project');
+    var clusterSelect = document.getElementById('cluster');
+
+    // Function to update other input types based on selected option
+    function updateInputType(projectId) {
+      var selectedOption = clusterSelect.querySelector('option[value="' + projectId + '"]');
+      if (selectedOption) {
+        var clusterType = selectedOption.dataset.clusterType;
+        var clusterLocation = selectedOption.dataset.clusterLocation;
+        document.getElementById('project_type').value = clusterType;
+        document.getElementById('project_location').value = clusterLocation;
+      }
+    }
+
+    // Function to fetch clusters for the selected project
+    function fetchClusters(projectId) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', "{% url 'get_clusters' %}?project_id=" + projectId, true);
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var data = JSON.parse(xhr.responseText);
+          clusterSelect.innerHTML = ''; // Clear existing options
+          data.clusters.forEach(function(cluster) {
+            var option = document.createElement('option');
+            option.value = cluster.id;
+            option.textContent = cluster.name;
+            option.dataset.clusterType = cluster.cluster_type;
+            option.dataset.clusterLocation = cluster.cluster_location;
+            clusterSelect.appendChild(option);
+          });
+
+          // Update other input types based on the selected option
+          updateInputType(projectId);
+        } else {
+          console.error('Request failed. Status:', xhr.status);
+        }
+      };
+      xhr.onerror = function() {
+        console.error('Request failed');
+      };
+      xhr.send();
+    }
+
+    // Event listener for project selection change
+    projectSelect.addEventListener('change', function() {
+      var projectId = this.value;
+      fetchClusters(projectId);
+    });
+
+    // Trigger updateInputType function when the page loads
+    fetchClusters(projectSelect.value);
+  });
+  document.getElementById('addSaleLineBtn').addEventListener('click', function() {
+      // Capture input data
+      var description = document.getElementById('description').value;
+      var jumlah_cicil = document.getElementById('jumlah_cicil').value;
+      var tahun_cicil = document.getElementById('tahun_cicil').value;
+      var bulan_cicil = document.getElementById('bulan_cicil').value;
+
+      // Add new row to the table
+      var tableBody = document.getElementById('saleLineTableBody');
+      var newRow = document.createElement('tr');
+      newRow.innerHTML = `
+          <td class='d-none'></td>
+          <td>${description}</td>
+          <td>${jumlah_cicil}</td>
+          <td>${tahun_cicil}</td>
+          <td>${bulan_cicil}</td>
+      `;
+      tableBody.appendChild(newRow);
+
+      // Clear the form and close the modal
+      $('#bd-example-modal-lg').modal('hide');
+  });
+
+  document.getElementById('salesForm').addEventListener('submit', function(event) {
+      var saleLines = [];
+      var rows = document.querySelectorAll('#saleLineTableBody tr');
+      rows.forEach(function(row) {
+          var cells = row.querySelectorAll('td');
+          var saleLine = {
+              LineId: cells[0].innerText,
+              description: cells[1].innerText,
+              jumlah_cicil: cells[2].innerText,
+              tahun_cicil: cells[3].innerText,
+              bulan_cicil: cells[4].innerText,
+          };
+          saleLines.push(saleLine);
+      });
+      document.getElementById('saleLines').value = JSON.stringify(saleLines);
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+      const settingsButton = document.getElementById('detailcicilanButton');
+      const descriptionButton = document.getElementById('projectdetailButton');
+      const settingsDiv = document.getElementById('detail_cicilan');
+      const descriptionDiv = document.getElementById('detail_project');
+
+      const projectManager = document.getElementById('project_manager');
+      const projectManagerEmail = document.getElementById('project_manager_email');
+
+      const projectManagerSelect = document.getElementById('project');
+      const projectManagertype = document.getElementById('project_type');
+      const projectManagerlocation = document.getElementById('project_location');
+
+  
+      function toggleActiveButton(activeButton, inactiveButton) {
+          activeButton.classList.remove('btn-secondary');
+          activeButton.classList.add('btn-primary');
+          inactiveButton.classList.remove('btn-primary');
+          inactiveButton.classList.add('btn-secondary');
+      }
+  
+      settingsButton.addEventListener('click', function () {
+          settingsDiv.style.display = 'block';
+          descriptionDiv.style.display = 'none';
+          toggleActiveButton(settingsButton, descriptionButton);
+      });
+  
+      descriptionButton.addEventListener('click', function () {
+          settingsDiv.style.display = 'none';
+          descriptionDiv.style.display = 'block';
+          toggleActiveButton(descriptionButton, settingsButton);
+      });
+      
+      projectManagerSelect.addEventListener('change', function () {
+          const selectedOption = projectManagerSelect.options[projectManagerSelect.selectedIndex];
+          const type = selectedOption.getAttribute('data-type');
+          const Location = selectedOption.getAttribute('data-location');
+          projectManagertype.value = type;
+          projectManagerlocation.value = Location;
+      });
+
+      projectManager.addEventListener('change', function () {
+          const selectedOption = projectManager.options[projectManager.selectedIndex];
+          const email = selectedOption.getAttribute('data-email');
+          projectManagerEmail.value = email;
+      });
+
+      // Trigger the click event on settingsButton to show settingsDiv by default if needed
+      settingsButton.click();
+  });
+  </script>
+{% endblock %}

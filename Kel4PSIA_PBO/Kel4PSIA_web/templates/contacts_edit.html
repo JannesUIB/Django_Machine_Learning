@@ -1,0 +1,101 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}
+  Contacts | Edit
+{% endblock %}
+
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row">
+    <div class="col">
+      <h1>Contacts</h1>
+      <form action="{% url 'contactsupdate' contact.id %}" method="post" class="border border-dark" id="salesForm">
+        {%csrf_token%}
+        <table class="table" style="border: none;">
+          <tr>
+            <td>
+              <button type="submit" class="btn btn-secondary">Update</button>
+              <a href="{% url 'contactsdetails' contact.id %}" class="btn btn-danger">Discard</a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+                <h1><input type="text" class="form-control" name="contact_name" value="{{ contact.name }}"></h1>
+            </td>
+          </tr>
+          <tr>
+            <td>
+                <table class="table table-borderless">
+                  <tr>
+                    <td><label>Pendapatan Per Bulan</label></td>
+                    <td><input type="number" class="form-control" name="contact_main_income" value="{{ contact.pendapatan_per_bulan }}"></td>
+                  </tr>
+                  <tr>
+                    <td><label>Pendapatan Lain-Lain</label></td>
+                    <td><input type="number" class="form-control" name="contact_other_income" value="{{ contact.pendapatan_lain_lain }}"></td>
+                  </tr>
+                  <tr>
+                    <td><label>Status Pernikahan</label></td>
+                    <td>
+                      <select class="form-control" id="exampleFormControlSelect1" name="contact_status_pernikahan">
+                        {% if contact.status_pernikahan == 'sm' %}
+                          <option value="sm" selected>Sudah Menikah</option>
+                          <option value="bm">Belum Menikah</option>
+                          <option value="cn">Cerai Nikah</option>
+                          <option value="cm">Cerai Mati</option>
+                        {% elif contact.status_pernikahan == 'bm' %}
+                          <option value="sm" >Sudah Menikah</option>
+                          <option value="bm" selected>Belum Menikah</option>
+                          <option value="cn">Cerai Nikah</option>
+                          <option value="cm">Cerai Mati</option>
+                        {% elif contact.status_pernikahan == 'cn' %}
+                          <option value="sm" >Sudah Menikah</option>
+                          <option value="bm">Belum Menikah</option>
+                          <option value="cn" selected>Cerai Nikah</option>
+                          <option value="cm">Cerai Mati</option>
+                        {% elif contact.status_pernikahan == 'cm' %}
+                          <option value="sm" >Sudah Menikah</option>
+                          <option value="bm">Belum Menikah</option>
+                          <option value="cn">Cerai Nikah</option>
+                          <option value="cm" selected>Cerai Mati</option>
+                        {% endif %}
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><label>Jumlah Anak</label></td>
+                    <td><input type="number" class="form-control" name="contact_kids" value="{{ contact.jumlah_anak }}"></td>
+                  </tr>
+                </table>
+            </td>
+            <td>
+              <table class="table table-borderless">
+                <tr>
+                  <td><label>Phone</label></td>
+                  <td><input type="text" class="form-control" name="contact_phone" value="{{ contact.nomor_telepon }}"></td>
+                </tr>
+                <tr>
+                  <td><label>Email</label></td>
+                  <td><input type="email" class="form-control" name="contact_email" value="{{ contact.email }}"></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <h1>Houses</h1>
+              <table class="table table-borderless">
+                <tr>
+                  <th>Projects</th>                  
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

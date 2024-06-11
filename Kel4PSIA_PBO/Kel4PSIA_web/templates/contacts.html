@@ -1,0 +1,38 @@
+{% extends "master.html" %}
+{% load static %}
+{% block extracss %}
+  <link href="{% static '/css/sales_index.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}
+  Contacts | Index
+{% endblock %}
+
+
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">Contacts</h5>
+    <a href="{% url 'contactsform' %}" class="btn btn-primary">Add Contacts</a>
+  </div>
+</div>
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Phone</th>
+      <th scope="col">Email</th>
+      <!-- <th scope="col">Actions</th> -->
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in data %}
+    <tr>
+      <td><a href="{% url 'contactsdetails' item.id %}">{{ item.name }}</a></td>
+      <td>{{ item.email }}</td>
+      <td>{{ item.nomor_telepon }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

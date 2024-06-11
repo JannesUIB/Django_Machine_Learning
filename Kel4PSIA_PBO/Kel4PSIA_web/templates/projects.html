@@ -1,0 +1,36 @@
+{% extends "master.html" %}
+{% load static %}
+{% block extracss %}
+  <link href="{% static '/css/sales_index.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}
+  Projects | Index
+{% endblock %}
+
+
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">Projects</h5>
+    <a href="{% url 'projectsform' %}" class="btn btn-primary">Add Projects</a>
+  </div>
+</div>
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th scope="col">Project Name</th>
+      <th scope="col">Project Manager</th>
+      <!-- <th scope="col">Actions</th> -->
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in data %}
+    <tr>
+      <td><a href="{% url 'projectsdetails' item.id %}">{{ item.name }}</a></td>
+      <td>{{ item.project_manager.name }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
